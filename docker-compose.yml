@@ -1,0 +1,33 @@
+version: "3.9"
+
+services:
+  db:
+    image: postgres:15
+    container_name: movie_service_db
+    restart: always
+    environment:
+      POSTGRES_USER: test_user
+      POSTGRES_PASSWORD: test_password
+      POSTGRES_DB: movies
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U test_user -d movies"]
+      interval: 5s
+      retries: 5
+
+  api:
+    build: .
+    container_name: movie_service_api
+    restart: always
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql://test_user:test_password@db:5432/movies
+      OMDB_API_KEY: ${OMDB_API_KEY}
+    ports:
+      - "8000:8000"
+
+volumes:
+  postgres_data:
