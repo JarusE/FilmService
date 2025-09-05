@@ -41,7 +41,7 @@ async def create_movie_endpoint(payload: MovieCreate, db: Session = Depends(get_
             incoming["year"] = incoming.get("year") or omdb.get("year")
             incoming["description"] = incoming.get("description") or omdb.get("description")
     if get_by_title_year(db, incoming["title"], incoming.get("year")):
-        raise HTTPException(status_code=409, detail="Такой фильм уже есть")
+        raise HTTPException(status_code=409, detail="Such a film already exists")
     return create_movie(db, MovieCreate(**incoming))
 
 @app.get("/movies/{movie_id}", response_model=MovieOut)
@@ -60,7 +60,7 @@ def get_movie_endpoint(movie_id: int, db: Session = Depends(get_db)):
     """
     movie = get_movie(db, movie_id)
     if not movie:
-        raise HTTPException(status_code=404, detail="ФИльм не найден")
+        raise HTTPException(status_code=404, detail="Movie not found")
     return movie
 
 @app.get("/movies/", response_model=List[MovieOut])
@@ -153,7 +153,7 @@ async def seed_movies_if_less_than_10():
     try:
         current_count = count_movies(db)
         if current_count >= 10:
-            logging.info("less_than_10 пропуск проверки")
+            logging.info("less_than_10 skip check")
             return
 
         logging.info("less_than_10")
@@ -166,5 +166,5 @@ async def seed_movies_if_less_than_10():
 
         db.commit()
     except Exception as e:
-        logging.exception(f"less_than_10 ошибка: {e}")
+        logging.exception(f"less_than_10 error: {e}")
 
